@@ -4,85 +4,85 @@
 # Úvod do programování (MZ370P19)
 
 
-# tvorba třídy pro analýzu samohlásek a souhlásek textu
-class AnalyzaTextu:
-    def __init__(self, vstup):
-        self.vstup = vstup
-        self.__samohlasky = ["a", "e", "i", "o", "u", "y", "á", "ě", "í", "ó", "ú", "ů", "ý"]   # definice českých samohlásek
-        self.__cisla = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
-        self.__spec_znaky = [",", ".", "?", "!", ";"]   # definice speciálních znaků, které nemají být ignorovány
-        self.novy_soubor = []   # vytvoření seznamu pro pozdější zapsání do nového dokumentu
+# creating a class for text analysis
+class TextAnalysis:
+    def __init__(self, input):
+        self.input = input
+        self.__vowels = ["a", "e", "i", "o", "u", "y", "á", "ě", "í", "ó", "ú", "ů", "ý"]   # definition of Czech vowels
+        self.__number = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+        self.__spec_char = [",", ".", "?", "!", ";"]   # definion of special characters
+        self.new = []   # creating a list
 
-    def otevri_soubor(self):
+    def open_input(self):
         try:
-            with open(self.vstup, encoding="utf-8") as f:   # otevření souboru s encodingem 
-                samohl_pocet = 0   # základní nastavení počítadel
-                souhl_pocet = 0   
-                cisla_pocet = 0
-                spec_pocet = 0
-                mezery = 0
+            with open(self.input, encoding="utf-8") as f:   # opening a document with encoding that supports Czech alphabet
+                vowel_count = 0   # setting the counters
+                cons_count = 0   
+                number_count = 0
+                spec_count = 0
+                space = 0
 
-                for radek in f:   # čtení souboru po řádcích
-                    for znak in radek.lower():   # čtení souboru po znacích a vyřešení citlivosti pro velká a malá písmena
-                        if znak in self.__cisla:
-                            cisla_pocet = cisla_pocet + 1   # při nalezení čísla se počítadlo navýší o 1
-                        elif znak in self.__spec_znaky:
-                            spec_pocet = spec_pocet + 1   # při nalezení zadaného specifického znaku se počítadlo navýší o 1
-                        elif znak == " ":
-                            mezery = mezery + 1
+                for line in f:   # reading the document by lines
+                    for char in line.lower():   # reading the lines by characters
+                        if char in self.__number:
+                            number_count = number_count + 1   # adding +1 to number counter when finding a number
+                        elif char in self.__spec_char:
+                            spec_count = spec_count + 1   # adding +1 to special character counter when finding a special character
+                        elif char == " ":
+                            space = space + 1
                         else:
-                            if znak.isalpha():   # rozlišení písmen od číslic, mezer a speciálních znaků
-                                if znak in self.__samohlasky:
-                                    samohl_pocet = samohl_pocet + 1   # při nalezení samohlásky se počítadlo navýší o 1
+                            if char.isalpha():   # identifying letters from special "banned" characters (plus, minus, semiolon etc.)
+                                if char in self.__vowels:
+                                    vowel_count = vowel_count + 1   # adding +1 to vowel counter when finding a vowel
                                 else:
-                                    souhl_pocet = souhl_pocet + 1   # při nalezení souhlásky se počítadlo navýší o 1
+                                    cons_count = cons_count + 1   # adding +1 to consonant counter when finding a consonant
 
-                        self.novy_soubor.append(znak) # zápis znaku do listu pro následné přepsání do nového souboru
+                        self.new.append(char) # adding characters to the list
 
-                self.prepocet(samohl_pocet, souhl_pocet, cisla_pocet, spec_pocet, mezery)   # volání metody třídy, která vypočítává procentuální zastoupení samohlásek a souhlásek
+                self.counting(vowel_count, cons_count, number_count, spec_count, space)   # calling a method for percentage counting
 
-        # ošetření errorů
+        # error patches
         except FileNotFoundError:
-            print(f"Chyba, vstupní soubor nebyl nalezen.")
+            print(f"Error, input not found.")
             exit()
         except Exception as e:
-            print(f"Neočekávaná chyba: {e}")
+            print(f"Unexpected error: {e}")
         
-    # výpočet procent
-    def prepocet(self, samohl_pocet, souhl_pocet, cisla_pocet, spec_pocet, mezery):
-        self.__samohl_pocet = samohl_pocet
-        self.__souhl_pocet = souhl_pocet
-        self.__cisla_pocet = cisla_pocet
-        self.__spec_pocet = spec_pocet
-        self.__mezera = mezery
-        self.__delka = self.__samohl_pocet + self.__souhl_pocet + self.__cisla_pocet + self.__spec_pocet + self.__mezera   # výpočet počtu znaků v souboru, prvek nutný pro výpočet procentuálního zastoupení
+    # percentage counting
+    def counting(self, vowel_count, cons_count, number_count, spec_count, space):
+        self.__vowel_count = vowel_count
+        self.__cons_count = cons_count
+        self.__number_count = number_count
+        self.__spec_count = spec_count
+        self.__space = space
+        self.__length = self.__vowel_count + self.__cons_count + self.__number_count + self.__spec_count + self.__space   # counting the lenght of the text
 
-        if self.__delka > 0:
-            self.samohl_proc = (self.__samohl_pocet/self.__delka)*100   # výpočet procentuálního zastoupení za podmínky, že soubor obsahuje více než 0 znaků
-            self.souhl_proc = (self.__souhl_pocet/self.__delka)*100     # procenta = (počet samohlásek nebo souhlásek)/počet znaků * 100
+        if self.__length > 0:
+            self.vowel_perc = (self.__vowel_count/self.__length)*100   # counting the percantage only if the text has more than 0 letters
+            self.cons_perc = (self.__cons_count/self.__length)*100     # percentage = (vowels or consonants count)/character count * 100
         else:
-            self.samohl_proc = 0   # ošetření prázdného souboru
-            self.souhl_proc = 0
+            self.vowel_perc = 0   # making sure the document is not empty
+            self.cons_perc = 0
 
-    # metoda pro tisk výsledků do konzole
-    def tisk_vysledku(self):
-        if self.__delka > 0:
+    # printing the results into the console
+    def print_output(self):
+        if self.__length > 0:
             print(f"Soubor s analýzou textu byl vytvořen.")
         else:
-            print(f"Textový soubor neobsahuje žádná písmena.")   # pokud soubor neobsahuje žádná písmena, vytiskne se upozornění
+            print(f"Textový soubor neobsahuje žádná písmena.")   # if the document has not letters, the programme prints this warning
             exit()
 
-    # tvorba metody tvořící výstupní data v novém textovém souboru
-    def vystupni_soubor(self):
-        with open (r"vysledky2.txt", "w", encoding="utf-8") as dokument:
-            for znak in self.novy_soubor:
-                dokument.write(znak)   # napiš každý znak v novém souboru
-            dokument.write(f"\n\nTextový soubor obsahuje {self.__delka} znaků, z toho {self.__samohl_pocet} samohlásek ({self.samohl_proc:.2f} %) a {self.__souhl_pocet} souhlásek ({self.souhl_proc:.2f} %).")
+    # method for creating output document
+    def output_document(self):
+        with open (r"vysledky2.txt", "w", encoding="utf-8") as document:
+            for char in self.new:
+                document.write(char)   # writing all the characters into the new document
+            document.write(f"\n\nTextový soubor obsahuje {self.__length} znaků, z toho {self.__vowel_count} samohlásek ({self.vowel_perc:.2f} %) a {self.__cons_count} souhlásek ({self.cons_perc:.2f} %).")
 
 
-vstup = r"uloha_2.txt"
+input = r"uloha_2.txt"
 
-vystup = AnalyzaTextu(vstup)
-vystup.otevri_soubor()
-vystup.tisk_vysledku()
-vystup.vystupni_soubor()   
+output = TextAnalysis(input)
+output.open_input()
+output.print_output()
+output.output_document()   
