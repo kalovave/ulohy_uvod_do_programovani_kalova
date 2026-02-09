@@ -4,70 +4,66 @@
 # Úvod do programování (MZ370P19)
 
 
-# tvorba třídy pro výpočet mediánu z nesetříděné posloupnosti
+# creating a class for median counting
 class Median:
-    def __init__(self, vstup):
-        self.vstup = vstup
-        self.serazeni = []   # tvorba listu pro zapsání čísel a jejich následnou práci s nimi
-        self.vysledny_median = 0   # nastavení mediánu souboru čísel na 0
+    def __init__(self, input):
+        self.input = input
+        self.sorted = []   # creating a list for sorted numbers
+        self.median = 0   # setting a median
 
-    def otevri_soubor(self):
+    def open_input(self):
         try:
-            with open(self.vstup, encoding="utf-8") as f:   # otevření souboru
-                for radek in f:   # čtení řádku
-                    radek = radek.strip()   # zbavení řádku zbytečných mezer (v případdě, kdyby číslia byla ve více řádcích)
-                    if not radek:   # přeskočení řádku, pokud nic neobsahuje
-                        continue
-                    
-                    cisla = radek.split(";")   # rozdělení čísel středníkem
-                    for cislo in cisla:
-                        if cislo.strip():   # ošetření vstupních dat - kdyby se ve vstupu objevily dva oddělovače za sebou
-                            self.serazeni.append(int(cislo))   # přepis čísel z str na int
+            with open(self.input, encoding="utf-8") as f:   # document opening
+                for line in f:   # reading the document by lines                  
+                    numbers = line.split(";")   # splitting the numbers with ";"
+                    for number in numbers:
+                        if number.strip():   # making sure the programme is working despite two ";" eisting in the document
+                            self.sorted.append(int(number))   # rewritting the numbers from str to int
   
-        # ošetření errorů
+        # error patches
         except FileNotFoundError:
-            print(f"Chyba, vstupní soubor nebyl nalezen.")   # ošetření špatných oddělovačů mezi číslicemi posloupnosti (např. teček, mezer...)
+            print(f"Error, input not found.")   # error - wrong separator between numbers (".", "-", " ", etc.)
             exit()
         except ValueError:
-            print(f"Chyba, dokument obsahuje neplatná data.")   # dokument obsahuje i jiné znaky než poze číslice (např. mezery nebo písmena)
+            print(f"Chyba, invalid data.")   # document contains different characters instead of just numbers and separators
             exit()
         except Exception as e:
-            print(f"Neočekávaná chyba: {e}")
+            print(f"Unexpected error: {e}")
 
-    def serad(self):
-        self.__delka = len(self.serazeni)
-        for i in range(self.__delka):   # bubble sort - pro každé číslo v rozsahu počtu číslic
-            for j in range (0, self.__delka - i - 1):   # pro každé číslo v rozsahu od 0 až (délka - i - 1)
-                if self.serazeni[j] > self.serazeni[j + 1]:   # pokud je číslo dřív v pořadí větší než číslo následující, prohoď jejich hodnoty
-                    self.serazeni[j], self.serazeni[j + 1] = self.serazeni[j + 1], self.serazeni[j]
+    def sort(self):
+        self.__length = len(self.sorted)
+        for i in range(self.__length):   # bubble sort - for each number in the range number count
+            for j in range (0, self.__length - i - 1):   # for each number in range from 0 to (lenght - i - 1)
+                if self.sorted[j] > self.sorted[j + 1]:   # if the number on the first place is bigger than the next one, switch them
+                    self.sorted[j], self.sorted[j + 1] = self.sorted[j + 1], self.sorted[j]
 
-        self.najdi_median()
+        self.find_median()
 
-    def najdi_median(self):
-        if self.__delka == 0:   # pokud soubor obsahuje nula číslic, vypiš chybovou hlášku
+    def find_median(self):
+        if self.__length == 0:   # if the document has no numbers, print the warning
             print(f"Textový soubor neobsahuje platné čísice.")
             exit()
-        elif (self.__delka % 2) == 0:
-            i = (self.__delka // 2) - 1
-            j = self.__delka // 2
-            self.vysledny_median = (self.serazeni[i] + self.serazeni[j])/2   # výpočet medián pro sudý počet čísel - průměr dvou prostředních hodnot
+        elif (self.__length % 2) == 0:
+            i = (self.__length // 2) - 1
+            j = self.__length // 2
+            self.median = (self.sorted[i] + self.sorted[j])/2   # counting the median for even numbers - the mean of the middle numbers
         else:
-            i = self.__delka // 2
-            self.vysledny_median = self.serazeni[i]   # výpočet medián pro lichý počet čísel - určení prostřední hodnoty
+            i = self.__length // 2
+            self.median = self.sorted[i]   # the mediean for odd numbers - the middle number
 
-    # tvorba výsledného dokumentu
-    def tisk_vysledku(self):
-        with open (r"vysledky94.txt", "w", encoding="utf-8") as dokument:
-            for cislo in self.serazeni:      # do nového dokumentu vepíšeme každé seřazené číslo ze seznamu "self.serazeni"
-                dokument.write(f"{cislo}\n")
-            dokument.write(f"\n\nMedián nesetříděné posloupnosti je {self.vysledny_median}.")
+    # creating the output
+    def print_output(self):
+        with open (r"vysledky94.txt", "w", encoding="utf-8") as document:
+            for number in self.sorted:      # writing all the numbers from "self.sorted"
+                document.write(f"{number}\n")
+            document.write(f"\n\nMedián nesetříděné posloupnosti je {self.median}.")
 
         print(f"Soubor s analýzou celočíselné posloupnosti byl vytvořen.")
 
 
-vstup = r"uloha_94.txt"
+input = r"uloha_94.txt"
 
-vystup = Median(vstup)
-vystup.otevri_soubor()
-vystup.serad()
-vystup.tisk_vysledku()
+output = Median(input)
+output.open_input()
+output.sort()
+output.print_output()
